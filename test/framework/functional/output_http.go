@@ -28,12 +28,6 @@ framing.method = "newline_delimited"
 {{ if ne .MinTLS "" }}
 [sources.my_source.tls]
 enabled = true
-{{ if ne .MinTLS "" }}
-min_tls_version = "{{.MinTLS}}"
-{{ end }}
-{{ if ne .Ciphers "" }}
-ciphersuites = "{{.Ciphers}}"
-{{ end }}
 key_file = "/tmp/secrets/http/tls.key"
 crt_file = "/tmp/secrets/http/tls.crt"
 {{ end }}

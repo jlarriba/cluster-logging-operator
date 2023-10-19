@@ -47,8 +47,6 @@ var _ = Describe("outputLabelConf", func() {
 })
 
 var _ = Describe("Generate vector config", func() {
-	defaultTLS := "VersionTLS12"
-	defaultCiphers := "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
 	inputPipeline := []string{"application"}
 	var f = func(clspec logging.CollectionSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op generator.Options) []generator.Element {
 		return Conf(clfspec.Outputs[0], inputPipeline, secrets[clfspec.Outputs[0].Name], op)
@@ -792,9 +790,6 @@ kubernetes_host = "${VECTOR_SELF_NODE_NAME}"
 kubernetes_namespace_name = "{{kubernetes.namespace_name}}"
 kubernetes_pod_name = "{{kubernetes.pod_name}}"
 log_type = "{{log_type}}"
-[sinks.loki_receiver.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 
 # Bearer Auth Config
 [sinks.loki_receiver.auth]

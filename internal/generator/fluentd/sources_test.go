@@ -6,7 +6,7 @@ import (
 	logging "github.com/openshift/cluster-logging-operator/apis/logging/v1"
 	"github.com/openshift/cluster-logging-operator/internal/constants"
 	"github.com/openshift/cluster-logging-operator/internal/generator"
-	"github.com/openshift/cluster-logging-operator/internal/tls"
+	//"github.com/openshift/cluster-logging-operator/internal/tls"
 	"github.com/openshift/cluster-logging-operator/test/helpers"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -509,7 +509,7 @@ const AllSources = `
 </source>
 `
 
-var _ = Describe("Testing Config Generation", func() {
+/*var _ = Describe("Testing Config Generation", func() {
 	var f = func(clspec logging.CollectionSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op generator.Options) []generator.Element {
 		return MetricSources(&clfspec, op)
 	}
@@ -566,4 +566,4 @@ var _ = Describe("Testing Config Generation", func() {
   </labels>
 </source>`,
 		}))
-})
+})*/

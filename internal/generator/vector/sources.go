@@ -4,13 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	configv1 "github.com/openshift/api/config/v1"
 	logging "github.com/openshift/cluster-logging-operator/apis/logging/v1"
 	"github.com/openshift/cluster-logging-operator/internal/constants"
 	"github.com/openshift/cluster-logging-operator/internal/generator"
 	"github.com/openshift/cluster-logging-operator/internal/generator/vector/helpers"
 	"github.com/openshift/cluster-logging-operator/internal/generator/vector/source"
-	"github.com/openshift/cluster-logging-operator/internal/tls"
 )
 
 const (
@@ -122,13 +120,6 @@ func ExcludeContainerPaths(namespace string) string {
 }
 
 func HttpSources(spec *logging.ClusterLogForwarderSpec, op generator.Options) []generator.Element {
-	var minTlsVersion, cipherSuites string
-	if _, ok := op[generator.ClusterTLSProfileSpec]; ok {
-		tlsProfileSpec := op[generator.ClusterTLSProfileSpec].(configv1.TLSProfileSpec)
-		minTlsVersion = tls.MinTLSVersion(tlsProfileSpec)
-		cipherSuites = strings.Join(tls.TLSCiphers(tlsProfileSpec), `,`)
-	}
-
 	el := []generator.Element{}
 	for _, input := range spec.Inputs {
 		if input.Receiver != nil && input.Receiver.HTTP != nil {
@@ -137,8 +128,6 @@ func HttpSources(spec *logging.ClusterLogForwarderSpec, op generator.Options) []
 				ListenAddress: helpers.ListenOnAllLocalInterfacesAddress(),
 				ListenPort:    input.Receiver.HTTP.GetPort(),
 				Format:        input.Receiver.HTTP.Format,
-				TlsMinVersion: minTlsVersion,
-				CipherSuites:  cipherSuites,
 			})
 		}
 	}
@@ -150,8 +139,6 @@ type HttpReceiver struct {
 	ListenAddress string
 	ListenPort    int32
 	Format        string
-	TlsMinVersion string
-	CipherSuites  string
 }
 
 func (HttpReceiver) Name() string {
@@ -170,12 +157,6 @@ decoding.codec = "json"
 enabled = true
 key_file = "/etc/collector/{{.ID}}/tls.key"
 crt_file = "/etc/collector/{{.ID}}/tls.crt"
-{{- if ne .TlsMinVersion "" }}
-min_tls_version = "{{ .TlsMinVersion }}"
-{{- end }}
-{{- if ne .CipherSuites "" }}
-ciphersuites = "{{ .CipherSuites }}"
-{{- end }}
 
 [transforms.{{.ID}}_split]
 type = "remap"

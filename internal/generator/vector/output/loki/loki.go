@@ -212,7 +212,6 @@ func TLSConf(o logging.OutputSpec, secret *corev1.Secret, op Options) []Element 
 			ComponentID: strings.ToLower(vectorhelpers.Replacer.Replace(o.Name)),
 			CAFilePath:  `"/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"`,
 		}
-		tlsConf.SetTLSProfileFromOptions(op)
 		return []Element{
 			tlsConf,
 		}

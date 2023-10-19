@@ -13,8 +13,6 @@ import (
 )
 
 var _ = Describe("Generating outputs", func() {
-	defaultTLS := "VersionTLS12"
-	defaultCiphers := "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
 	var f = func(clspec logging.CollectionSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op generator.Options) []generator.Element {
 		return Outputs(nil, secrets, &clfspec, op)
 	}
@@ -120,8 +118,6 @@ kubernetes_pod_name = "{{kubernetes.pod_name}}"
 log_type = "{{log_type}}"
 
 [sinks.default_loki_apps.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 ca_file = "/var/run/secrets/kubernetes.io/serviceaccount/service-ca.crt"
 
 # Bearer Auth Config
@@ -146,8 +142,6 @@ default_namespace = "collector"
 enabled = true
 key_file = "/etc/collector/metrics/tls.key"
 crt_file = "/etc/collector/metrics/tls.crt"
-min_tls_version = "VersionTLS12"
-ciphersuites = "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
 `,
 		}),
 	)

@@ -38,8 +38,6 @@ type TLSConf struct {
 	ComponentID        string
 	NeedsEnabled       bool
 	InsecureSkipVerify bool
-	TlsMinVersion      string
-	CipherSuites       string
 	CAFilePath         string
 	CertPath           string
 	KeyPath            string
@@ -52,17 +50,7 @@ func NewTLSConf(o logging.OutputSpec, op generator.Options) TLSConf {
 		NeedsEnabled:       true,
 		InsecureSkipVerify: o.TLS != nil && o.TLS.InsecureSkipVerify,
 	}
-	conf.SetTLSProfileFromOptions(op)
 	return conf
-}
-
-func (conf *TLSConf) SetTLSProfileFromOptions(op generator.Options) {
-	if version, found := op[generator.MinTLSVersion]; found {
-		conf.TlsMinVersion = version.(string)
-	}
-	if ciphers, found := op[generator.Ciphers]; found {
-		conf.CipherSuites = ciphers.(string)
-	}
 }
 
 func addTLSSettings(o logging.OutputSpec, secret *corev1.Secret, conf *TLSConf) bool {
@@ -82,9 +70,6 @@ func addTLSSettings(o logging.OutputSpec, secret *corev1.Secret, conf *TLSConf) 
 		addTLS = true
 		conf.PassPhrase = security.GetFromSecret(secret, constants.Passphrase)
 	}
-	if conf.TlsMinVersion != "" || conf.CipherSuites != "" {
-		addTLS = true
-	}
 	if conf.InsecureSkipVerify {
 		addTLS = true
 	}
@@ -102,12 +87,6 @@ func (t TLSConf) Template() string {
 [sinks.{{.ComponentID}}.tls]
 {{- if .NeedsEnabled }}
 enabled = true
-{{- end }}
-{{- if ne .TlsMinVersion "" }}
-min_tls_version = "{{ .TlsMinVersion }}"
-{{- end }}
-{{- if ne .CipherSuites "" }}
-ciphersuites = "{{ .CipherSuites }}"
 {{- end }}
 {{- if .InsecureSkipVerify }}
 verify_certificate = false

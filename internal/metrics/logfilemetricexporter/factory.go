@@ -1,11 +1,9 @@
 package logfilemetricexporter
 
 import (
-	"strings"
 
 	"github.com/openshift/cluster-logging-operator/internal/runtime"
 
-	"github.com/openshift/cluster-logging-operator/internal/tls"
 	apps "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 
@@ -110,8 +108,7 @@ func newLogMetricsExporterContainer(exporter loggingv1a1.LogFileMetricExporter, 
 	}
 	exporterContainer.Command = []string{"/bin/bash"}
 	exporterContainer.Args = []string{"-c",
-		"/usr/local/bin/log-file-metric-exporter -verbosity=2 -dir=/var/log/pods -http=:2112 -keyFile=/etc/logfilemetricexporter/metrics/tls.key -crtFile=/etc/logfilemetricexporter/metrics/tls.crt -tlsMinVersion=" +
-			tls.MinTLSVersion(tlsProfileSpec) + " -cipherSuites=" + strings.Join(tls.TLSCiphers(tlsProfileSpec), ",")}
+		"/usr/local/bin/log-file-metric-exporter -verbosity=2 -dir=/var/log/pods -http=:2112 -keyFile=/etc/logfilemetricexporter/metrics/tls.key -crtFile=/etc/logfilemetricexporter/metrics/tls.crt"}
 
 	exporterContainer.VolumeMounts = []v1.VolumeMount{
 		{Name: logContainers, ReadOnly: true, MountPath: logContainersValue},

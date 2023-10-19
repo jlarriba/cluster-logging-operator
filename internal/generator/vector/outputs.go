@@ -68,15 +68,6 @@ func Outputs(clspec *logging.CollectionSpec, secrets map[string]*corev1.Secret, 
 			}
 		}
 
-		if o.Name == logging.OutputNameDefault && o.Type == logging.OutputTypeElasticsearch {
-			op[generator.MinTLSVersion] = ""
-			op[generator.Ciphers] = ""
-		} else {
-			outMinTlsVersion, outCiphers := op.TLSProfileInfo(o, ",")
-			op[generator.MinTLSVersion] = outMinTlsVersion
-			op[generator.Ciphers] = outCiphers
-		}
-
 		inputs := ofp[o.Name].List()
 		if o.HasPolicy() && o.GetMaxRecordsPerSecond() > 0 {
 			// Vector Throttle component cannot have zero threshold
@@ -106,20 +97,17 @@ func Outputs(clspec *logging.CollectionSpec, secrets map[string]*corev1.Secret, 
 		}
 	}
 
-	minTlsVersion, cipherSuites := op.TLSProfileInfo(logging.OutputSpec{}, ",")
 	outputs = append(outputs,
 		AddNodeNameToMetric(AddNodenameToMetricTransformName, []string{InternalMetricsSourceName}),
-		PrometheusOutput(PrometheusOutputSinkName, []string{AddNodenameToMetricTransformName}, minTlsVersion, cipherSuites))
+		PrometheusOutput(PrometheusOutputSinkName, []string{AddNodenameToMetricTransformName}))
 	return outputs
 }
 
-func PrometheusOutput(id string, inputs []string, minTlsVersion string, cipherSuites string) generator.Element {
+func PrometheusOutput(id string, inputs []string) generator.Element {
 	return PrometheusExporter{
 		ID:            id,
 		Inputs:        helpers.MakeInputs(inputs...),
 		Address:       helpers.ListenOnAllLocalInterfacesAddress() + `:` + PrometheusExporterListenPort,
-		TlsMinVersion: minTlsVersion,
-		CipherSuites:  cipherSuites,
 	}
 }
 

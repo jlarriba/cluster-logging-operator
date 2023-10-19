@@ -17,8 +17,6 @@ import (
 
 var _ = Describe("Generate Vector config", func() {
 	inputPipeline := []string{"application"}
-	defaultTLS := "VersionTLS12"
-	defaultCiphers := "TLS_AES_128_GCM_SHA256,TLS_AES_256_GCM_SHA384,TLS_CHACHA20_POLY1305_SHA256,ECDHE-ECDSA-AES128-GCM-SHA256,ECDHE-RSA-AES128-GCM-SHA256,ECDHE-ECDSA-AES256-GCM-SHA384,ECDHE-RSA-AES256-GCM-SHA384,ECDHE-ECDSA-CHACHA20-POLY1305,ECDHE-RSA-CHACHA20-POLY1305,DHE-RSA-AES128-GCM-SHA256,DHE-RSA-AES256-GCM-SHA384"
 	var f = func(clspec logging.CollectionSpec, secrets map[string]*corev1.Secret, clfspec logging.ClusterLogForwarderSpec, op generator.Options) []generator.Element {
 		e := []generator.Element{}
 		for _, o := range clfspec.Outputs {
@@ -224,8 +222,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 
 [sinks.gcl_tls.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 verify_certificate = false
 verify_hostname = false
 key_file = "/var/run/ocp-collector/secrets/junk/tls.key"
@@ -333,8 +329,6 @@ retry_attempts = 17
 
 
 [sinks.gcl_tls.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 verify_certificate = false
 verify_hostname = false
 `,

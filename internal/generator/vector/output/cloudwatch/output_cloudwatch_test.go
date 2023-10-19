@@ -156,8 +156,6 @@ retry_attempts = 17
 concurrency = 2
 
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 key_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.key"
 crt_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.crt"
 ca_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/ca-bundle.crt"
@@ -183,8 +181,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 `
 
 	cwSinkKeyIdTLSInsecure = `
@@ -208,8 +204,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 verify_certificate = false
 verify_hostname = false
 key_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.key"
@@ -236,8 +230,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 key_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.key"
 crt_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.crt"
 ca_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/ca-bundle.crt"
@@ -262,8 +254,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 verify_certificate = false
 verify_hostname = false
 key_file = "/var/run/ocp-collector/secrets/vector-cw-secret-tls/tls.key"
@@ -290,8 +280,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 key_file = "/var/run/ocp-collector/secrets/vector-tls-credentials/tls.key"
 crt_file = "/var/run/ocp-collector/secrets/vector-tls-credentials/tls.crt"
 ca_file = "/var/run/ocp-collector/secrets/vector-tls-credentials/ca-bundle.crt"
@@ -316,8 +304,6 @@ when_full = "drop_newest"
 retry_attempts = 17
 concurrency = 2
 [sinks.cw.tls]
-min_tls_version = "` + defaultTLS + `"
-ciphersuites = "` + defaultCiphers + `"
 verify_certificate = false
 verify_hostname = false
 key_file = "/var/run/ocp-collector/secrets/vector-tls-credentials/tls.key"
