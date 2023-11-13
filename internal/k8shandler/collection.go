@@ -207,7 +207,7 @@ func (clusterRequest *ClusterLoggingRequest) RemoveInputServices(currOwner []met
 	// Collect defined http inputs
 	httpInputs := sets.NewString()
 	for _, input := range clusterRequest.Forwarder.Spec.Inputs {
-		if input.Receiver != nil && input.Receiver.HTTP != nil {
+		if logging.IsHttpReceiver(&input) {
 			httpInputs.Insert(input.Name)
 		}
 	}

@@ -82,6 +82,11 @@ func Generate(collectionType logging.LogCollectionType, clfYaml string, includeD
 	op := framework.Options{}
 	k8shandler.EvaluateAnnotationsForEnabledCapabilities(forwarder, op)
 	op[framework.ClusterTLSProfileSpec] = tls.GetClusterTLSProfileSpec(nil)
+	for _, input := range forwarder.Spec.Inputs {
+		if logging.IsSyslogReceiver(&input) {
+			op["syslog"] = input.Name
+		}
+	}
 
 	configGenerator := forwardergenerator.New(collectionType)
 	if configGenerator == nil {

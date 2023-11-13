@@ -73,7 +73,7 @@ var _ = Describe("Validate clusterlogforwarderspec", func() {
 			Expect(clfStatus.Inputs["my-app-logs"]).To(HaveCondition("Ready", false, loggingv1.ReasonInvalid, "duplicate name: \"my-app-logs\""))
 		})
 
-		It("should fail when inputspec doesn't define one of application, infrastructure, audit or source", func() {
+		It("should fail when inputspec doesn't define one of application, infrastructure, audit or receiver", func() {
 			forwarderSpec := &loggingv1.ClusterLogForwarderSpec{
 				Inputs: []loggingv1.InputSpec{
 					{Name: "my-app-logs"},
@@ -83,10 +83,9 @@ var _ = Describe("Validate clusterlogforwarderspec", func() {
 			Expect(clfStatus.Inputs["my-app-logs"]).To(HaveCondition("Ready", false, loggingv1.ReasonInvalid, "inputspec must define one or more of application, infrastructure, audit or receiver"))
 		})
 
-		It("should fail validation for invalid HTTP receiver specs", func() {
-
+		It("should fail validation for invalid receiver specs", func() {
 			checkReceiver := func(receiverSpec *loggingv1.ReceiverSpec, expectedErrMsg string, extras map[string]bool) {
-				const inputName = `http-receiver`
+				const inputName = `receiver`
 				forwarderSpec := &loggingv1.ClusterLogForwarderSpec{
 					Inputs: []loggingv1.InputSpec{
 						{
@@ -99,12 +98,15 @@ var _ = Describe("Validate clusterlogforwarderspec", func() {
 				Expect(clfStatus.Inputs[inputName]).To(HaveCondition("Ready", false, loggingv1.ReasonInvalid, expectedErrMsg))
 			}
 
-			checkPorts := func(port int32, format string, expectedErrMsg string) {
+			checkPortAndHTTPFormat := func(port int32, format string, expectedErrMsg string) {
 				checkReceiver(
 					&loggingv1.ReceiverSpec{
-						HTTP: &loggingv1.HTTPReceiver{
-							Port:   port,
-							Format: format,
+						Type: loggingv1.ReceiverTypeHttp,
+						ReceiverTypeSpec: &loggingv1.ReceiverTypeSpec{
+							HTTP: &loggingv1.HTTPReceiver{
+								Port: port,
+								Format: format,
+							},
 						},
 					},
 					expectedErrMsg,
@@ -112,12 +114,83 @@ var _ = Describe("Validate clusterlogforwarderspec", func() {
 				)
 			}
 
-			for _, port := range []int32{-1, 53, 80_000} {
-				checkPorts(port, loggingv1.FormatKubeAPIAudit, `invalid port specified for HTTP receiver`)
+			checkPortAndSyslogProtocol := func(port int32, protocol string, expectedErrMsg string) {
+				checkReceiver(
+					&loggingv1.ReceiverSpec{
+						Type: loggingv1.ReceiverTypeSyslog,
+						ReceiverTypeSpec: &loggingv1.ReceiverTypeSpec{
+							Syslog: &loggingv1.SyslogReceiver{
+								Port: port,
+								Protocol: protocol,
+							},
+						},
+					},
+					expectedErrMsg,
+					map[string]bool{constants.VectorName: true},
+				)
 			}
-			checkPorts(8080, `no_such_format`, `invalid format specified for HTTP receiver`)
-			checkReceiver(&loggingv1.ReceiverSpec{}, `ReceiverSpec must define an HTTP receiver`, map[string]bool{constants.VectorName: true})
+
+			checkReceiverType := func(receiverType string, expectedErrMsg string) {
+				checkReceiver(
+					&loggingv1.ReceiverSpec{
+						Type: receiverType,
+						ReceiverTypeSpec: &loggingv1.ReceiverTypeSpec{},
+					},
+					expectedErrMsg,
+					map[string]bool{constants.VectorName: true},
+				)
+			}
+
+			for _, port := range []int32{-1, 53, 80_000} {
+				checkPortAndHTTPFormat(port, loggingv1.FormatKubeAPIAudit, `invalid port specified for HTTP receiver`)
+			}
+			checkPortAndHTTPFormat(8080, `no_such_format`, `invalid format specified for HTTP receiver`)
+			for _, port := range []int32{-1, 53, 80_000} {
+				checkPortAndSyslogProtocol(port, "tcp", `invalid port specified for Syslog receiver`)
+			}
+			checkPortAndSyslogProtocol(10514, "http", `invalid protocol specified for Syslog receiver`)
+			checkReceiverType("wrong-receiver", `invalid Type specified for receiver`)
+			checkReceiver(&loggingv1.ReceiverSpec{}, `invalid ReceiverTypeSpec specified for receiver`, map[string]bool{constants.VectorName: true})
 			checkReceiver(&loggingv1.ReceiverSpec{}, `ReceiverSpecs are only supported for the vector log collector`, map[string]bool{})
+		})
+
+		It("should fail validation if both HTTP and Syslog receivers are defined", func() {
+
+			checkReceiver := func(receiverSpec *loggingv1.ReceiverSpec, expectedErrMsg string, extras map[string]bool) {
+				const inputName = `receiver`
+				forwarderSpec := &loggingv1.ClusterLogForwarderSpec{
+					Inputs: []loggingv1.InputSpec{
+						{
+							Name:     inputName,
+							Receiver: receiverSpec,
+						},
+					},
+				}
+				verifyInputs(forwarderSpec, clfStatus, extras)
+				Expect(clfStatus.Inputs[inputName]).To(HaveCondition("Ready", false, loggingv1.ReasonInvalid, expectedErrMsg))
+			}
+
+			checkReceivers := func(port int32, format string, protocol string, expectedErrMsg string) {
+				checkReceiver(
+					&loggingv1.ReceiverSpec{
+						Type: loggingv1.ReceiverTypeHttp,
+						ReceiverTypeSpec: &loggingv1.ReceiverTypeSpec{
+							HTTP: &loggingv1.HTTPReceiver{
+								Port: port,
+								Format: format,
+							},
+							Syslog: &loggingv1.SyslogReceiver{
+								Port: port,
+								Protocol: protocol,
+							},
+						},
+					},
+					expectedErrMsg,
+					map[string]bool{constants.VectorName: true},
+				)
+			}
+
+			checkReceivers(8080, loggingv1.FormatKubeAPIAudit, "tcp", `ReceiverSpec must define only one of HTTP or Syslog receiver`)
 		})
 
 		It("should remove all inputs if even one inputspec is invalid", func() {
@@ -162,7 +235,7 @@ var _ = Describe("Validate clusterlogforwarderspec", func() {
 			Expect(clfStatus.Inputs["my-audit-logs"]).To(HaveCondition("Ready", true, "", ""))
 		})
 
-		It("should validate correctly when input spec defines all three input source specs", func() {
+		It("should validate correctly when input spec defines all four input source specs", func() {
 			forwarderSpec := &loggingv1.ClusterLogForwarderSpec{
 				Inputs: []loggingv1.InputSpec{
 					{Name: "all-logs",

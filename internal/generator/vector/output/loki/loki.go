@@ -200,6 +200,18 @@ func Labels(o logging.OutputSpec) Element {
 	}
 }
 
+func LabelsSyslog(o logging.OutputSpec) Element {
+	return LokiLabels{
+		ComponentID: strings.ToLower(vectorhelpers.Replacer.Replace(o.Name)),
+		Labels: []Label{
+			{
+				Name:  logType,
+				Value: "{{log_type}}",
+			},
+		},
+	}
+}
+
 func Tenant(l *logging.Loki) Element {
 	if l == nil || l.TenantKey == "" {
 		return Nil

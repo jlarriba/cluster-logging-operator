@@ -138,7 +138,6 @@ const (
 	OptimisticLockErrorMsg = "the object has been modified; please apply your changes to the latest version and try again"
 	OTELSchema             = "opentelemetry"
 
-	HTTPReceiverPort      = 8443
 	LabelHTTPInputService = "http-input-service"
 )
 

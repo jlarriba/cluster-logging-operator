@@ -45,7 +45,11 @@ func (clusterRequest *ClusterLoggingRequest) generateCollectorConfig() (config s
 	tlsProfile, _ := tls.FetchAPIServerTlsProfile(clusterRequest.Client)
 	op[framework.ClusterTLSProfileSpec] = tls.GetClusterTLSProfileSpec(tlsProfile)
 	EvaluateAnnotationsForEnabledCapabilities(clusterRequest.Forwarder, op)
-
+	for _, input := range clusterRequest.Forwarder.Spec.Inputs {
+		if logging.IsSyslogReceiver(&input) {
+			op["syslog"] = input.Name
+		}
+	}
 	g := forwardergenerator.New(clusterRequest.Cluster.Spec.Collection.Type)
 	generatedConfig, err := g.GenerateConf(clusterRequest.Cluster.Spec.Collection, clusterRequest.OutputSecrets, &clusterRequest.Forwarder.Spec, clusterRequest.Forwarder.Namespace, clusterRequest.Forwarder.Name, op)
 
