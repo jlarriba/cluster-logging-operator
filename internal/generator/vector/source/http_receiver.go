@@ -12,7 +12,7 @@ import (
 func HttpSources(spec *logging.ClusterLogForwarderSpec, op framework.Options) []framework.Element {
 	el := []framework.Element{}
 	for _, input := range spec.Inputs {
-		if input.Receiver != nil && input.Receiver.HTTP != nil {
+		if logging.IsHttpReceiver(&input) {
 			el = append(el, NewHttpSource(input.Name, input, op))
 		}
 	}

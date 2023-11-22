@@ -139,6 +139,7 @@ const (
 	OTELSchema             = "opentelemetry"
 
 	LabelHTTPInputService = "http-input-service"
+	LabelSyslogInputService = "syslog-input-service"
 )
 
 var ReconcileForGlobalProxyList = []string{CollectorTrustedCAName}

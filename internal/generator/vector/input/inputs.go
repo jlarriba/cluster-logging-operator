@@ -179,7 +179,7 @@ func Inputs(spec *logging.ClusterLogForwarderSpec, o Options) []Element {
 					Desc:        `Set log_type to "infrastructure"`,
 					ComponentID: `syslog_input`,
 					// Feeding the raw, untransformed openstack logs works well
-					Inputs: helpers.MakeInputs(`raw_syslog_logs`),
+					Inputs: helpers.MakeInputs(source.RawSyslogLogs),
 					VRL:    AddLogTypeInfra,
 				})
 		}

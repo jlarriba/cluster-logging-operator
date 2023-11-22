@@ -9,7 +9,7 @@ import (
 func SyslogSources(spec *logging.ClusterLogForwarderSpec, op framework.Options) []framework.Element {
 	el := []framework.Element{}
 	for _, input := range spec.Inputs {
-		if input.Receiver != nil && input.Receiver.HTTP != nil {
+		if logging.IsSyslogReceiver(&input) {
 			el = append(el, NewSyslogSource(input.Name, input, op))
 		}
 	}
@@ -32,13 +32,13 @@ type SyslogReceiver struct {
 	Protocol      string
 }
 
-func (SyslogReceiver) Name() string {
+func (r SyslogReceiver) Name() string {
 	return "syslogReceiver"
 }
 
-func (i SyslogReceiver) Template() string {
+func (r SyslogReceiver) Template() string {
 	return `
-{{define "` + i.Name() + `" -}}
+{{define "` + RawSyslogLogs + `" -}}
 [sources.{{.ID}}]
 type = "syslog"
 address = "{{.ListenAddress}}:{{.ListenPort}}"
